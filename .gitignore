@@ -1,0 +1,20 @@
+# Local environment
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*~
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Editors
+.vscode/
+.idea/
+
+# GNS3 temporary files — review before exporting
+*.lock
