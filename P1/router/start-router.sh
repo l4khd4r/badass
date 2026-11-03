@@ -1,6 +1,12 @@
 #!/bin/sh
 set -eu
 
-/bin/bash /usr/lib/frr/frrinit.sh start
+mkdir -p /run/frr
+chown frr:frr /run/frr
 
-exec /bin/sh
+/usr/lib/frr/watchfrr \
+    -d \
+    -F traditional \
+    zebra bgpd ospfd isisd staticd
+
+exec /bin/bash -i
