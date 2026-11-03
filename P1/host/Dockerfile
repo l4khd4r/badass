@@ -9,9 +9,7 @@ RUN apk add --no-cache \
     iproute2 \
     iputils \
     tcpdump \
-    net-tools \
-    bind-tools \
-    ethtool
+    net-tools 
 
 
 # Start an interactive shell

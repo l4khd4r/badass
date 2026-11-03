@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     frr \
     iproute2 \
     iputils \
-    tcpdump
+    tcpdump \
+    bridge-utils
 
 # Enable the routing daemons required by the project.
 
@@ -17,16 +18,14 @@ COPY daemons /etc/frr/daemons
 
 COPY start-router.sh /usr/local/bin/start-router
 
-RUN chmod +x /usr/local/bin/start-router \
-    && mkdir -p /etc/frr \
-    && touch /etc/frr/frr.conf \
-    /etc/frr/zebra.conf \
-    /etc/frr/ospfd.conf \
-    /etc/frr/bgpd.conf \
-    /etc/frr/isisd.conf \
-    && chown -R frr:frr /etc/frr \
-    && chmod 640  /etc/frr/*.conf
+# Single integrated config: frr.conf (no IP) + vtysh.conf (vtysh saves into frr.conf)
+COPY frr.conf vtysh.conf /etc/frr/
 
+# FRR daemons run as user frr: it must own its config and its PID/socket dir
+RUN chmod +x /usr/local/bin/start-router \
+    && mkdir -p /run/frr \
+    && chown -R frr:frr /etc/frr /run/frr \
+    && chmod 640 /etc/frr/frr.conf
 # Start FRR services, then provide an interactive shell for troubleshooting.
 
 
