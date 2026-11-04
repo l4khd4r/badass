@@ -26,9 +26,9 @@ RUN chmod +x /usr/local/bin/start-router \
     && mkdir -p /run/frr \
     && chown -R frr:frr /etc/frr /run/frr \
     && chmod 640 /etc/frr/frr.conf
+    
+    
 # Start FRR services, then provide an interactive shell for troubleshooting.
-
-
 CMD ["/usr/local/bin/start-router"]
 
 

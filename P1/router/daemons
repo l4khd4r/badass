@@ -1,8 +1,12 @@
-# BGP, used in P3 (EVPN + route reflector
+# zebra: core manager, installs routes from the protocols into the kernel
 zebra=yes
+# BGP: used in P3 (EVPN + route reflector)
 bgpd=yes
+# OSPF: P3 underlay
 ospfd=yes
+# IS-IS: required by the subject
 isisd=yes
+
 
 ospf6d=no
 ripd=no
