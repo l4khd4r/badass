@@ -60,7 +60,7 @@ badass/
 ## P1 — GNS3 configuration with Docker
 
 Two images, reused in every part. **No IP address is configured in either image.**
-
+![P1 GNS3 Topology](docs/images/p1.png)
 ### Host — `host_mlakhdar:p1`
 
 - Alpine Linux, whose userland is **busybox** (`sh`, `ip`, `ping`, `ps`, ...)
