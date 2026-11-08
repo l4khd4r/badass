@@ -170,3 +170,10 @@ flooding with **BGP EVPN**, which announces VTEPs and MACs explicitly.
 | ping fails, underlay OK | `bridge link` on each router: `eth1` and `vxlan10` in `br0`, `forwarding` |
 | replies leave the wrong interface | `ip route` on the host: only one route for 30.1.1.0/24 |
 | no traffic at all | same VNI and port (10 / 4789) on both routers: `ip -d link show vxlan10` |
+
+
+
+## Resources 
+https://ipwithease.com/difference-between-underlay-network-and-overlay-network/
+
+https://ipwithease.com/vteps-and-vnis-in-vxlan/
