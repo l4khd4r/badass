@@ -6,7 +6,7 @@ Network simulation project built with **GNS3** and **Docker**: from basic router
 |---|---|---|
 | [P1](P1/) | GNS3 + Docker images (host, FRR router) | ✅ Done |
 | [P2](P2/) | VXLAN (VNI 10), static then multicast | ✅ Done |
-| P3 | BGP EVPN with route reflector, OSPF underlay | ⏳ To do |
+| [P3](P3/) | BGP EVPN with route reflector, OSPF underlay | ✅ Done |
 
 ---
 
@@ -61,6 +61,17 @@ badass/
 │       ├── host-mlakhdar-1.sh     30.1.1.1/24
 │       └── host-mlakhdar-2.sh     30.1.1.2/24
 ├── P3/                        BGP EVPN
+│   ├── P3.gns3project         GNS3 portable export
+│   ├── README.md              topology, roles, how to run and verify
+│   ├── deploy.sh              routers | hosts-noip | hosts | all
+│   └── scripts/
+│       ├── router-mlakhdar-1.sh   route reflector: OSPF + BGP RR
+│       ├── router-mlakhdar-2.sh   leaf / VTEP: OSPF + BGP EVPN + vxlan10 + br0
+│       ├── router-mlakhdar-3.sh
+│       ├── router-mlakhdar-4.sh
+│       ├── host-mlakhdar-1.sh     20.1.1.1/24
+│       ├── host-mlakhdar-2.sh     20.1.1.2/24
+│       └── host-mlakhdar-3.sh     20.1.1.3/24
 └── docs/                      notes and learning roadmap
 ```
 
@@ -169,7 +180,36 @@ outer packet between the VTEPs (10.1.1.x, UDP 4789, VNI 10): **50 bytes** of ove
 
 ## P3 — BGP EVPN
 
-_Coming soon._
+A small data center: a **route reflector** and **3 leaves** (VTEPs), each with one host.
+The hosts share one LAN (**20.1.1.0/24, VNI 10**) over VXLAN, and **BGP EVPN** announces
+the VTEPs and the host MACs instead of flooding. Full details in [P3/README.md](P3/README.md).
+![P3 GNS3 Topology](docs/images/p3-topology.png)
+
+| Layer | Protocol | Job |
+|---|---|---|
+| Underlay | **OSPF** area 0 | make every loopback (1.1.1.x) reachable |
+| Overlay control plane | **iBGP + EVPN**, AS 1 | type 3 = VTEPs, type 2 = MACs |
+| Overlay data plane | **VXLAN** VNI 10 | carry the hosts' frames between leaves |
+
+Each leaf has **one** BGP session, to the route reflector, which reflects the routes
+between leaves (no iBGP full mesh needed).
+
+### Run
+
+```sh
+./P3/deploy.sh routers      # then wait ~30 s
+./P3/deploy.sh hosts-noip   # type 2 routes appear before any IP
+./P3/deploy.sh hosts        # hosts get 20.1.1.x/24
+```
+
+### Verify
+
+```sh
+vtysh -c "show ip route"            # O>* routes to every loopback, via the RR
+vtysh -c "show bgp summary"         # one neighbor: 1.1.1.1, Established
+vtysh -c "show bgp l2vpn evpn"      # [3] per VTEP, [2] per active host MAC
+ping 20.1.1.3                       # from host-mlakhdar-1
+```
 
 ---
 
@@ -187,6 +227,11 @@ _Coming soon._
 | **Flood and learn** | VTEPs flood unknown frames and learn MAC → VTEP mappings from traffic |
 | **Multicast group** | An address (e.g. 239.1.1.1) that receivers join; one packet reaches all members |
 | **Linux bridge** | Software switch (`br0`) that forwards frames between its ports by MAC |
+| **iBGP / eBGP** | BGP inside one AS / between different ASes |
+| **AS** | Autonomous System: a network under one administration, identified by an ASN |
 | **Route reflector** | iBGP router that re-advertises routes so leaves don't need a full mesh |
 | **OSPF / IS-IS** | Link-state interior routing protocols |
+| **Loopback** | Virtual interface that never goes down: stable router identity |
+| **Type 2 / type 3** | EVPN routes: MAC advertisement / VTEP (inclusive multicast) announcement |
+| **RD / RT** | Route Distinguisher (makes a route unique) / Route Target (decides who imports it) |
 | **Underlay / overlay** | Real IP network (underlay) vs virtual L2 network on top (overlay) |
