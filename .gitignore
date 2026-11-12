@@ -7,14 +7,15 @@
 *~
 .DS_Store
 
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-
-# Editors
+#Editors
 .vscode/
 .idea/
 
 # GNS3 temporary files — review before exporting
 *.lock
+
+context.md
+
+
+# Obsidian vault settings (docs/ is opened as a vault)
+.obsidian/
